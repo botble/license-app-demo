@@ -30,8 +30,8 @@ function callApi(string $method, string $endpoint, ?array $data = null, ?array $
         'Content-Type: application/json',
         'Accept: application/json',
         'X-API-KEY: ' . $config['api_key'],
-        'X-URL: ' . getCurrentUrl(),
-        'X-IP: ' . getClientIp(),
+        'X-API-URL: ' . getCurrentUrl(),
+        'X-API-IP: ' . getClientIp(),
     ];
 
     $curlOptions = [

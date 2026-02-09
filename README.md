@@ -81,8 +81,8 @@ Interactive web application for testing License Manager API operations.
 ```
 Content-Type: application/json
 X-API-KEY: {your-api-key}
-X-URL: {your-app-url}
-X-IP: {your-server-ip}
+X-API-URL: {your-app-url}
+X-API-IP: {your-server-ip}
 ```
 
 ## Security Notes
