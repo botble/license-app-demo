@@ -32,6 +32,7 @@ function callApi(string $method, string $endpoint, ?array $data = null, ?array $
         'X-API-KEY: ' . $config['api_key'],
         'X-API-URL: ' . getCurrentUrl(),
         'X-API-IP: ' . getClientIp(),
+        'X-API-LANGUAGE: en',
     ];
 
     $curlOptions = [
