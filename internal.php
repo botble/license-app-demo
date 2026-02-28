@@ -453,7 +453,7 @@ $csrfToken = $_SESSION['csrf_token'];
                         <span id="status-connection" class="badge" style="background: var(--border); color: var(--text-muted)">
                             Connection: Unknown
                         </span>
-                        <span class="badge" style="background: #FEF3C7; color: #92400E">
+                        <span id="status-apikey" class="badge" style="background: <?= $isConfigured ? 'var(--border)' : '#FEF3C7' ?>; color: <?= $isConfigured ? 'var(--text-muted)' : '#92400E' ?>; <?= $isConfigured ? 'display:none' : '' ?>">
                             Internal API Key Required
                         </span>
                     </div>
@@ -914,14 +914,17 @@ $csrfToken = $_SESSION['csrf_token'];
 
         function updateConfigStatus(configured) {
             const statusEl = document.getElementById('status-config');
+            const apikeyEl = document.getElementById('status-apikey');
             if (configured) {
                 statusEl.style.background = 'var(--success)';
                 statusEl.style.color = 'white';
                 statusEl.textContent = 'Config: Ready';
+                apikeyEl.style.display = 'none';
             } else {
                 statusEl.style.background = 'var(--border)';
                 statusEl.style.color = 'var(--text-muted)';
                 statusEl.textContent = 'Config: Not Set';
+                apikeyEl.style.display = '';
             }
         }
 
