@@ -567,9 +567,8 @@ $csrfToken = $_SESSION['csrf_token'];
                                 </button>
                             </div>
                             <div class="input-group input-group-sm">
-                                <span class="input-group-text" style="font-size: 0.75rem;">ID</span>
                                 <input type="text" class="form-control" id="product_id_input"
-                                       placeholder="e.g. 1, 2, 3...">
+                                       placeholder="ID or Reference ID (e.g. BOTBLE-CMS)">
                                 <button type="button" class="btn btn-operation" onclick="getProductDetails()">
                                     Get
                                 </button>
@@ -593,9 +592,8 @@ $csrfToken = $_SESSION['csrf_token'];
                                 </button>
                             </div>
                             <div class="input-group input-group-sm mb-2">
-                                <span class="input-group-text" style="font-size: 0.75rem;">ID</span>
                                 <input type="text" class="form-control" id="license_id_input"
-                                       placeholder="e.g. 1, 2, 3...">
+                                       placeholder="ID or License Code (UUID)">
                                 <button type="button" class="btn btn-operation" onclick="getLicenseDetails()">
                                     Get
                                 </button>
