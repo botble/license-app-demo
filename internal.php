@@ -506,8 +506,9 @@ $csrfToken = $_SESSION['csrf_token'];
                     </div>
                     <div class="card-body">
                         <div class="mb-2">
+                            <label class="form-label">Product Reference ID <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-sm" id="new_product_id"
-                                   placeholder="Product Reference ID * (e.g. BOTBLE-CMS)">
+                                   placeholder="e.g. BOTBLE-CMS">
                         </div>
                         <div class="mb-2">
                             <input type="text" class="form-control form-control-sm" id="new_license_code"
@@ -566,10 +567,11 @@ $csrfToken = $_SESSION['csrf_token'];
                                 </button>
                             </div>
                             <div class="input-group input-group-sm">
+                                <span class="input-group-text" style="font-size: 0.75rem;">ID</span>
                                 <input type="text" class="form-control" id="product_id_input"
-                                       placeholder="Product ID (numeric)">
+                                       placeholder="e.g. 1, 2, 3...">
                                 <button type="button" class="btn btn-operation" onclick="getProductDetails()">
-                                    <i class="bi bi-box-arrow-up-right me-1"></i>Get
+                                    Get
                                 </button>
                             </div>
                         </div>
@@ -580,7 +582,7 @@ $csrfToken = $_SESSION['csrf_token'];
                             <div class="d-flex gap-2 mb-2">
                                 <div class="input-group input-group-sm flex-grow-1">
                                     <input type="text" class="form-control" id="license_keyword"
-                                           placeholder="Search licenses...">
+                                           placeholder="Search by license code...">
                                     <button type="button" class="btn btn-operation" onclick="searchLicenses()">
                                         <i class="bi bi-search"></i>
                                     </button>
@@ -591,10 +593,11 @@ $csrfToken = $_SESSION['csrf_token'];
                                 </button>
                             </div>
                             <div class="input-group input-group-sm mb-2">
+                                <span class="input-group-text" style="font-size: 0.75rem;">ID</span>
                                 <input type="text" class="form-control" id="license_id_input"
-                                       placeholder="License ID (numeric)">
+                                       placeholder="e.g. 1, 2, 3...">
                                 <button type="button" class="btn btn-operation" onclick="getLicenseDetails()">
-                                    <i class="bi bi-box-arrow-up-right me-1"></i>Get
+                                    Get
                                 </button>
                             </div>
                             <div class="d-flex gap-2">
@@ -663,12 +666,12 @@ $csrfToken = $_SESSION['csrf_token'];
                             <li><strong>422 Validation Error</strong> - Missing required fields (check response)</li>
                             <li><strong>License code exists</strong> - Use auto-generate or pick unique code</li>
                         </ul>
-                        <p style="font-size: 0.8125rem; margin-bottom: 0.5rem; margin-top: 1rem;"><strong>Create License Fields</strong></p>
+                        <p style="font-size: 0.8125rem; margin-bottom: 0.5rem; margin-top: 1rem;"><strong>ID Types</strong></p>
                         <ul style="font-size: 0.8125rem; color: var(--text-muted); padding-left: 1.25rem;">
-                            <li><strong>Product Reference ID</strong> - Required (e.g. BOTBLE-CMS)</li>
-                            <li><strong>License Code</strong> - Optional UUID, auto-generated if empty</li>
-                            <li><strong>Parallel Uses</strong> - Max simultaneous activations (default: 1)</li>
-                            <li><strong>Get/Block/Unblock</strong> - Use numeric ID, not license code</li>
+                            <li><strong>ID</strong> (numeric) - Used for Get, Block, Unblock operations</li>
+                            <li><strong>Reference ID</strong> (string) - Used for Create License (e.g. BOTBLE-CMS)</li>
+                            <li><strong>License Code</strong> - UUID, auto-generated if empty on create</li>
+                            <li><strong>Search</strong> - Licenses are searched by license code</li>
                         </ul>
                     </div>
                 </div>
@@ -897,7 +900,7 @@ $csrfToken = $_SESSION['csrf_token'];
         function updateStatuses(action, result) {
             if (action === 'check_connection') {
                 const statusEl = document.getElementById('status-connection');
-                if (result.success && result.data?.is_active) {
+                if (result.success) {
                     statusEl.style.background = 'var(--success)';
                     statusEl.style.color = 'white';
                     statusEl.textContent = 'Connection: OK';
