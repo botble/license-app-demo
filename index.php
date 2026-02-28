@@ -120,6 +120,7 @@ $csrfToken = $_SESSION['csrf_token'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= e($csrfToken) ?>">
     <title>License Manager API Demo - External API</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -139,6 +140,18 @@ $csrfToken = $_SESSION['csrf_token'];
             --json-bool: #3B82F6;
             --json-number: #EA580C;
             --json-null: #64748B;
+            --code-bg: #F1F5F9;
+        }
+
+        [data-bs-theme="dark"] {
+            --bg: #0F172A;
+            --card-bg: #1E293B;
+            --text: #E2E8F0;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --code-bg: #0F172A;
+            --json-key: #A78BFA;
+            --json-string: #34D399;
         }
 
         * { box-sizing: border-box; }
@@ -236,6 +249,8 @@ $csrfToken = $_SESSION['csrf_token'];
             border-radius: 0.375rem;
             font-size: 0.875rem;
             padding: 0.5rem 0.75rem;
+            background: var(--card-bg);
+            color: var(--text);
         }
 
         .form-control:focus, .form-select:focus {
@@ -268,7 +283,7 @@ $csrfToken = $_SESSION['csrf_token'];
         }
 
         .btn-operation {
-            background: #F1F5F9;
+            background: var(--code-bg);
             border: 1px solid var(--border);
             color: var(--text);
         }
@@ -302,7 +317,7 @@ $csrfToken = $_SESSION['csrf_token'];
             background: #1E293B;
             border-radius: 0.375rem;
             min-height: 200px;
-            max-height: 350px;
+            max-height: 500px;
             overflow: auto;
         }
 
@@ -324,12 +339,7 @@ $csrfToken = $_SESSION['csrf_token'];
         .json-null { color: var(--json-null); }
 
         .request-panel {
-            background: var(--bg);
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .request-panel {
+            background: var(--code-bg);
             border-radius: 0.375rem;
             font-size: 0.8125rem;
             font-family: 'JetBrains Mono', monospace;

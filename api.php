@@ -300,9 +300,14 @@ function checkInternalConnection(): array
 /**
  * List all products
  */
-function listProducts(): array
+function listProducts(string $keyword = '', int $perPage = 15): array
 {
-    return callApi('GET', '/api/internal/products');
+    $query = http_build_query(array_filter([
+        'keyword' => $keyword,
+        'per_page' => $perPage,
+    ], fn ($v) => $v !== ''));
+
+    return callApi('GET', '/api/internal/products' . ($query ? '?' . $query : ''));
 }
 
 /**
@@ -316,9 +321,14 @@ function getProduct(string $productId): array
 /**
  * List all licenses
  */
-function listLicenses(): array
+function listLicenses(string $keyword = '', int $perPage = 15): array
 {
-    return callApi('GET', '/api/internal/product-licenses');
+    $query = http_build_query(array_filter([
+        'keyword' => $keyword,
+        'per_page' => $perPage,
+    ], fn ($v) => $v !== ''));
+
+    return callApi('GET', '/api/internal/product-licenses' . ($query ? '?' . $query : ''));
 }
 
 /**
@@ -334,6 +344,22 @@ function getLicense(string $licenseId): array
  */
 function createLicense(array $data): array
 {
+    // Map demo field names to API expected field names
+    if (isset($data['product_id'])) {
+        $data['product_reference_id'] = $data['product_id'];
+        unset($data['product_id']);
+    }
+
+    if (isset($data['client_email'])) {
+        $data['email'] = $data['client_email'];
+        unset($data['client_email']);
+    }
+
+    if (isset($data['client'])) {
+        $data['customer_id'] = $data['client'];
+        unset($data['client']);
+    }
+
     return callApi('POST', '/api/internal/product-licenses', $data);
 }
 

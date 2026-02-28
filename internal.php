@@ -60,7 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             exit;
 
         case 'list_products':
-            echo json_encode(listProducts());
+            $keyword = trim($_POST['keyword'] ?? '');
+            echo json_encode(listProducts($keyword));
             exit;
 
         case 'get_product':
@@ -73,7 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             exit;
 
         case 'list_licenses':
-            echo json_encode(listLicenses());
+            $keyword = trim($_POST['keyword'] ?? '');
+            echo json_encode(listLicenses($keyword));
             exit;
 
         case 'get_license':
@@ -146,6 +148,7 @@ $csrfToken = $_SESSION['csrf_token'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= e($csrfToken) ?>">
     <title>License Manager API Demo - Internal API</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -165,6 +168,18 @@ $csrfToken = $_SESSION['csrf_token'];
             --json-bool: #3B82F6;
             --json-number: #EA580C;
             --json-null: #64748B;
+            --code-bg: #F1F5F9;
+        }
+
+        [data-bs-theme="dark"] {
+            --bg: #0F172A;
+            --card-bg: #1E293B;
+            --text: #E2E8F0;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --code-bg: #0F172A;
+            --json-key: #A78BFA;
+            --json-string: #34D399;
         }
 
         * { box-sizing: border-box; }
@@ -178,7 +193,7 @@ $csrfToken = $_SESSION['csrf_token'];
         }
 
         .main-container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 2rem 1.5rem;
         }
@@ -262,6 +277,8 @@ $csrfToken = $_SESSION['csrf_token'];
             border-radius: 0.375rem;
             font-size: 0.875rem;
             padding: 0.5rem 0.75rem;
+            background: var(--card-bg);
+            color: var(--text);
         }
 
         .form-control:focus, .form-select:focus {
@@ -294,7 +311,7 @@ $csrfToken = $_SESSION['csrf_token'];
         }
 
         .btn-operation {
-            background: #F1F5F9;
+            background: var(--code-bg);
             border: 1px solid var(--border);
             color: var(--text);
         }
@@ -328,7 +345,7 @@ $csrfToken = $_SESSION['csrf_token'];
             background: #1E293B;
             border-radius: 0.375rem;
             min-height: 200px;
-            max-height: 350px;
+            max-height: 500px;
             overflow: auto;
         }
 
@@ -350,25 +367,20 @@ $csrfToken = $_SESSION['csrf_token'];
         .json-null { color: var(--json-null); }
 
         .request-panel {
-            background: var(--bg);
+            background: var(--code-bg);
             border-radius: 0.375rem;
             font-size: 0.8125rem;
             font-family: 'JetBrains Mono', monospace;
-        }
-
-        .section-title {
-            font-size: 0.6875rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            margin-bottom: 0.75rem;
         }
 
         .operation-section {
             border-left: 2px solid var(--border);
             padding-left: 1rem;
             margin-bottom: 1.25rem;
+        }
+
+        .operation-section:last-child {
+            margin-bottom: 0;
         }
 
         .operation-section h6 {
@@ -450,8 +462,9 @@ $csrfToken = $_SESSION['csrf_token'];
         </div>
 
         <div class="row g-3 mt-0">
-            <!-- Configuration Card -->
-            <div class="col-lg-3">
+            <!-- Left Column: Config + Create License -->
+            <div class="col-lg-4">
+                <!-- Configuration Card -->
                 <div class="card">
                     <div class="card-header">
                         <span>Configuration</span>
@@ -485,11 +498,46 @@ $csrfToken = $_SESSION['csrf_token'];
                         </form>
                     </div>
                 </div>
+
+                <!-- Create License Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>Create License</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm" id="new_product_id"
+                                   placeholder="Product Reference ID * (e.g. BOTBLE-CMS)">
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm" id="new_license_code"
+                                   placeholder="License Code (auto-generate if empty)">
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-8">
+                                <input type="text" class="form-control form-control-sm" id="new_client"
+                                       placeholder="Client Name">
+                            </div>
+                            <div class="col-4">
+                                <input type="number" class="form-control form-control-sm" id="parallel_uses"
+                                       placeholder="Uses" value="1" min="1">
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <input type="email" class="form-control form-control-sm" id="new_client_email"
+                                   placeholder="Client Email">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm w-100" onclick="createNewLicense()">
+                            <i class="bi bi-plus-lg me-1"></i>Create License
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Operations Card -->
-            <div class="col-lg-4">
-                <div class="card h-100">
+            <!-- Right Column: Operations + Request/Response -->
+            <div class="col-lg-8">
+                <!-- Operations Card -->
+                <div class="card">
                     <div class="card-header">API Operations</div>
                     <div class="card-body">
                         <!-- Connection -->
@@ -497,23 +545,31 @@ $csrfToken = $_SESSION['csrf_token'];
                             <h6>Connection</h6>
                             <button type="button" class="btn btn-operation btn-sm"
                                     onclick="callOperation('check_connection')">
-                                Test Connection
+                                <i class="bi bi-plug me-1"></i>Test Connection
                             </button>
                         </div>
 
                         <!-- Products -->
                         <div class="operation-section">
                             <h6>Products</h6>
-                            <div class="d-flex gap-2 flex-wrap mb-2">
+                            <div class="d-flex gap-2 mb-2">
+                                <div class="input-group input-group-sm flex-grow-1">
+                                    <input type="text" class="form-control" id="product_keyword"
+                                           placeholder="Search products...">
+                                    <button type="button" class="btn btn-operation" onclick="searchProducts()">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
                                 <button type="button" class="btn btn-operation btn-sm"
                                         onclick="callOperation('list_products')">
                                     List All
                                 </button>
                             </div>
                             <div class="input-group input-group-sm">
-                                <input type="text" class="form-control" id="product_id_input" placeholder="Product ID">
+                                <input type="text" class="form-control" id="product_id_input"
+                                       placeholder="Product ID (numeric)">
                                 <button type="button" class="btn btn-operation" onclick="getProductDetails()">
-                                    Get
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>Get
                                 </button>
                             </div>
                         </div>
@@ -521,68 +577,43 @@ $csrfToken = $_SESSION['csrf_token'];
                         <!-- Licenses -->
                         <div class="operation-section">
                             <h6>Licenses</h6>
-                            <div class="d-flex gap-2 flex-wrap mb-2">
+                            <div class="d-flex gap-2 mb-2">
+                                <div class="input-group input-group-sm flex-grow-1">
+                                    <input type="text" class="form-control" id="license_keyword"
+                                           placeholder="Search licenses...">
+                                    <button type="button" class="btn btn-operation" onclick="searchLicenses()">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
                                 <button type="button" class="btn btn-operation btn-sm"
                                         onclick="callOperation('list_licenses')">
                                     List All
                                 </button>
                             </div>
                             <div class="input-group input-group-sm mb-2">
-                                <input type="text" class="form-control" id="license_id_input" placeholder="License ID">
+                                <input type="text" class="form-control" id="license_id_input"
+                                       placeholder="License ID (numeric)">
                                 <button type="button" class="btn btn-operation" onclick="getLicenseDetails()">
-                                    Get
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>Get
                                 </button>
                             </div>
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-operation btn-sm flex-fill" onclick="blockLicenseById()">
-                                    Block
+                                    <i class="bi bi-lock me-1"></i>Block
                                 </button>
                                 <button type="button" class="btn btn-operation btn-sm flex-fill" onclick="unblockLicenseById()">
-                                    Unblock
+                                    <i class="bi bi-unlock me-1"></i>Unblock
                                 </button>
                             </div>
-                        </div>
-
-                        <!-- Create License -->
-                        <div class="operation-section mb-0">
-                            <h6>Create License</h6>
-                            <div class="mb-2">
-                                <input type="text" class="form-control form-control-sm" id="new_product_id"
-                                       placeholder="Product ID *">
-                            </div>
-                            <div class="mb-2">
-                                <input type="text" class="form-control form-control-sm" id="new_license_code"
-                                       placeholder="License Code (auto-generate if empty)">
-                            </div>
-                            <div class="row g-2 mb-2">
-                                <div class="col-6">
-                                    <input type="text" class="form-control form-control-sm" id="new_client"
-                                           placeholder="Client Name">
-                                </div>
-                                <div class="col-6">
-                                    <input type="number" class="form-control form-control-sm" id="parallel_uses"
-                                           placeholder="Uses" value="1" min="1">
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <input type="email" class="form-control form-control-sm" id="new_client_email"
-                                       placeholder="Client Email">
-                            </div>
-                            <button type="button" class="btn btn-primary btn-sm w-100" onclick="createNewLicense()">
-                                Create License
-                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Response Panel -->
-            <div class="col-lg-5">
                 <!-- Request Panel -->
                 <div class="card">
                     <div class="card-header">Request</div>
                     <div class="card-body p-0">
-                        <div class="request-panel p-3" id="request-panel" style="max-height: 120px; overflow: auto;">
+                        <div class="request-panel p-3" id="request-panel" style="max-height: 150px; overflow: auto;">
                             <span style="color: var(--text-muted)">Click an operation to see the request...</span>
                         </div>
                     </div>
@@ -634,9 +665,10 @@ $csrfToken = $_SESSION['csrf_token'];
                         </ul>
                         <p style="font-size: 0.8125rem; margin-bottom: 0.5rem; margin-top: 1rem;"><strong>Create License Fields</strong></p>
                         <ul style="font-size: 0.8125rem; color: var(--text-muted); padding-left: 1.25rem;">
-                            <li><strong>Product ID</strong> - Required, must exist</li>
-                            <li><strong>License Code</strong> - Optional, auto-generated if empty</li>
+                            <li><strong>Product Reference ID</strong> - Required (e.g. BOTBLE-CMS)</li>
+                            <li><strong>License Code</strong> - Optional UUID, auto-generated if empty</li>
                             <li><strong>Parallel Uses</strong> - Max simultaneous activations (default: 1)</li>
+                            <li><strong>Get/Block/Unblock</strong> - Use numeric ID, not license code</li>
                         </ul>
                     </div>
                 </div>
@@ -646,7 +678,7 @@ $csrfToken = $_SESSION['csrf_token'];
         <!-- Footer -->
         <div class="footer">
             <a href="https://docs.botble.com/license-manager" target="_blank">Documentation</a>
-            <span class="mx-2">·</span>
+            <span class="mx-2">&middot;</span>
             <a href="https://codecanyon.net/user/botble/portfolio" target="_blank">CodeCanyon</a>
             <br><span style="margin-top: 0.5rem; display: inline-block;">License Manager by Botble</span>
         </div>
@@ -680,11 +712,7 @@ $csrfToken = $_SESSION['csrf_token'];
 
         // Call API operation
         async function callOperation(action, extraData = {}) {
-            const buttons = document.querySelectorAll('.btn-operation, .btn-primary');
-            buttons.forEach(btn => {
-                btn.classList.add('btn-loading');
-                btn.disabled = true;
-            });
+            setLoading(true);
 
             const formData = new FormData();
             formData.append('action', action);
@@ -706,12 +734,36 @@ $csrfToken = $_SESSION['csrf_token'];
             } catch (error) {
                 displayError(error.message);
             } finally {
-                buttons.forEach(btn => {
-                    btn.classList.remove('btn-loading');
-                    btn.disabled = false;
-                });
+                setLoading(false);
             }
         }
+
+        function setLoading(loading) {
+            document.querySelectorAll('.btn-operation, .btn-primary').forEach(btn => {
+                btn.classList.toggle('btn-loading', loading);
+                btn.disabled = loading;
+            });
+        }
+
+        // Search products
+        function searchProducts() {
+            const keyword = document.getElementById('product_keyword').value.trim();
+            callOperation('list_products', { keyword });
+        }
+
+        // Search licenses
+        function searchLicenses() {
+            const keyword = document.getElementById('license_keyword').value.trim();
+            callOperation('list_licenses', { keyword });
+        }
+
+        // Enter key support for search inputs
+        document.getElementById('product_keyword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); searchProducts(); }
+        });
+        document.getElementById('license_keyword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); searchLicenses(); }
+        });
 
         // Get product details
         function getProductDetails() {
@@ -781,12 +833,18 @@ $csrfToken = $_SESSION['csrf_token'];
             let html = `
                 <div class="mb-2">
                     <span class="badge bg-primary">${request.method}</span>
-                    <code class="ms-2">${escapeHtml(request.url)}</code>
+                    <code class="ms-2" style="word-break: break-all;">${escapeHtml(request.url)}</code>
+                </div>
+                <div class="mb-2">
+                    <strong style="font-size: 0.75rem; color: var(--text-muted);">Headers:</strong>
+                    <ul class="mb-0 ps-3" style="font-size: 0.75rem;">
+                        ${request.headers.map(h => `<li><code>${escapeHtml(h)}</code></li>`).join('')}
+                    </ul>
                 </div>
             `;
 
             if (request.body) {
-                html += `<pre class="mb-0 p-2 bg-light rounded" style="font-size: 0.75rem;">${escapeHtml(JSON.stringify(request.body, null, 2))}</pre>`;
+                html += `<pre class="mb-0 p-2 rounded" style="font-size: 0.75rem; background: var(--card-bg); border: 1px solid var(--border);">${escapeHtml(JSON.stringify(request.body, null, 2))}</pre>`;
             }
 
             document.getElementById('request-panel').innerHTML = html;
@@ -908,10 +966,14 @@ $csrfToken = $_SESSION['csrf_token'];
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
             toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
-            toast.style.zIndex = '9999';
+            toast.style.cssText = 'z-index: 9999; font-size: 0.875rem; padding: 0.75rem 1rem; animation: fadeIn 0.2s;';
             toast.textContent = message;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
         }
 
         // Escape HTML
@@ -922,7 +984,7 @@ $csrfToken = $_SESSION['csrf_token'];
             return div.innerHTML;
         }
 
-        // Check system dark mode preference
+        // Dark mode preference
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.setAttribute('data-bs-theme', 'dark');
         }
