@@ -568,7 +568,7 @@ $csrfToken = $_SESSION['csrf_token'];
                             </div>
                             <div class="input-group input-group-sm">
                                 <input type="text" class="form-control" id="product_id_input"
-                                       placeholder="ID or Reference ID (e.g. BOTBLE-CMS)">
+                                       placeholder="UUID or Reference ID">
                                 <button type="button" class="btn btn-operation" onclick="getProductDetails()">
                                     Get
                                 </button>
@@ -593,7 +593,7 @@ $csrfToken = $_SESSION['csrf_token'];
                             </div>
                             <div class="input-group input-group-sm mb-2">
                                 <input type="text" class="form-control" id="license_id_input"
-                                       placeholder="ID or License Code (UUID)">
+                                       placeholder="UUID (ID or License Code)">
                                 <button type="button" class="btn btn-operation" onclick="getLicenseDetails()">
                                     Get
                                 </button>
@@ -666,10 +666,10 @@ $csrfToken = $_SESSION['csrf_token'];
                         </ul>
                         <p style="font-size: 0.8125rem; margin-bottom: 0.5rem; margin-top: 1rem;"><strong>ID Types</strong></p>
                         <ul style="font-size: 0.8125rem; color: var(--text-muted); padding-left: 1.25rem;">
-                            <li><strong>ID</strong> (numeric) - Used for Get, Block, Unblock operations</li>
-                            <li><strong>Reference ID</strong> (string) - Used for Create License (e.g. BOTBLE-CMS)</li>
-                            <li><strong>License Code</strong> - UUID, auto-generated if empty on create</li>
-                            <li><strong>Search</strong> - Licenses are searched by license code</li>
+                            <li><strong>Product</strong> - Get by UUID or Reference ID (e.g. BOTBLE-CMS)</li>
+                            <li><strong>License</strong> - Get/Block/Unblock by UUID (ID or license code)</li>
+                            <li><strong>Create</strong> - Requires Product Reference ID</li>
+                            <li><strong>Search</strong> - Licenses searched by license code</li>
                         </ul>
                     </div>
                 </div>
